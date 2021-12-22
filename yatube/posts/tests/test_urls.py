@@ -36,6 +36,10 @@ class URLTests(TestCase):
         self.url_post_id = f'/posts/{self.post.id}/'
         self.url_post_edit = f'/posts/{self.post.id}/edit/'
         self.url_post_create = '/create/'
+        self.url_comment = f'posts/{self.post.id}/comment/'
+        self.url_all_follow = '/follow/'
+        self.url_follow = f'profile/{self.user_author}/follow/'
+        self.url_unfollow = f'profile/{self.user_author}/unfollow/'
         cache.clear()
 
     def test_urls_uses_correct_template(self):
@@ -46,7 +50,8 @@ class URLTests(TestCase):
             self.url_profile: 'posts/profile.html',
             self.url_post_id: 'posts/post_detail.html',
             self.url_post_edit: 'posts/create_post.html',
-            self.url_post_create: 'posts/create_post.html'
+            self.url_post_create: 'posts/create_post.html',
+            self.url_all_follow: 'posts/follow.html'
         }
         for adress, template in templates_url_names.items():
             with self.subTest(template=template):
@@ -61,7 +66,8 @@ class URLTests(TestCase):
             self.url_profile: HTTPStatus.OK,
             self.url_post_id: HTTPStatus.OK,
             self.url_post_edit: HTTPStatus.OK,
-            self.url_post_create: HTTPStatus.OK
+            self.url_post_create: HTTPStatus.OK,
+            self.url_all_follow: HTTPStatus.OK
         }
         for adress, status in templates_url_names.items():
             with self.subTest(adress=adress):
@@ -76,7 +82,8 @@ class URLTests(TestCase):
             self.url_profile: HTTPStatus.OK,
             self.url_post_id: HTTPStatus.OK,
             self.url_post_edit: HTTPStatus.FOUND,
-            self.url_post_create: HTTPStatus.FOUND
+            self.url_post_create: HTTPStatus.FOUND,
+            self.url_all_follow: HTTPStatus.FOUND
         }
         for adress, status in templates_url_names.items():
             with self.subTest(adress=adress):
@@ -92,7 +99,8 @@ class URLTests(TestCase):
             self.url_profile: HTTPStatus.OK,
             self.url_post_id: HTTPStatus.OK,
             self.url_post_edit: HTTPStatus.FOUND,
-            self.url_post_create: HTTPStatus.OK
+            self.url_post_create: HTTPStatus.OK,
+            self.url_all_follow: HTTPStatus.OK
         }
         for adress, status in templates_url_names.items():
             with self.subTest(adress=adress):

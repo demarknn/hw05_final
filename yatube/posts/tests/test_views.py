@@ -161,7 +161,36 @@ class ViewsTests(TestCase):
         post_test_not_follower = response_not_follower.context['page_obj']
         self.assertNotEqual(post_test, post_test_not_follower)
 
-    def test_follow_authorized_client(self):
+    def test_follow_new_post(self):
+        follower = User.objects.create(username='follower')
+        author = User.objects.create(username='author')
+        authorized_client = Client()
+        authorized_client.force_login(follower)
+        post = Post.objects.create(
+            text='Тестовый текст поста follow',
+            author=author,
+        )
+        Follow.objects.create(user=follower, author=author)
+        response = authorized_client.get(reverse('posts:follow_index'))
+        post_test = response.context['page_obj'][0]
+        self.assertEqual(post_test, post)
+
+    def test_unfollow_new_post(self):
+        follower = User.objects.create(username='follower')
+        not_follower = User.objects.create(username='not_follower')
+        author = User.objects.create(username='author')
+        authorized_client = Client()
+        authorized_client.force_login(not_follower)
+        post = Post.objects.create(
+            text='Тестовый текст поста follow',
+            author=author,
+        )
+        Follow.objects.create(user=follower, author=author)
+        response = authorized_client.get(reverse('posts:follow_index'))
+        post_test = response.context['page_obj']
+        self.assertNotEqual(post_test, post)
+
+    def test_follow(self):
         follower = User.objects.create(username='follower')
         Follow.objects.create(user=follower, author=self.user)
         following = (
@@ -169,6 +198,10 @@ class ViewsTests(TestCase):
                 user=follower).filter(author=self.user).exists()
         )
         self.assertTrue(following)
+
+    def test_unfollow(self):
+        follower = User.objects.create(username='follower')
+        Follow.objects.create(user=follower, author=self.user)
         Follow.objects.filter(user=follower, author=self.user).delete()
         following = (
             Follow.objects.filter(
