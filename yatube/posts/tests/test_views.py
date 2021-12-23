@@ -147,22 +147,6 @@ class ViewsTests(TestCase):
 
     def test_follow_new_post(self):
         follower = User.objects.create(username='follower')
-        not_follower = User.objects.create(username='not_follower')
-        authorized_client = Client()
-        authorized_client.force_login(follower)
-        Follow.objects.create(user=follower, author=self.user)
-        response = authorized_client.get(reverse('posts:follow_index'))
-        post_test = response.context['page_obj'][0]
-        self.assertEqual(post_test, self.post)
-        authorized_client.force_login(not_follower)
-        response_not_follower = authorized_client.get(
-            reverse('posts:follow_index')
-        )
-        post_test_not_follower = response_not_follower.context['page_obj']
-        self.assertNotEqual(post_test, post_test_not_follower)
-
-    def test_follow_new_post(self):
-        follower = User.objects.create(username='follower')
         author = User.objects.create(username='author')
         authorized_client = Client()
         authorized_client.force_login(follower)
@@ -192,17 +176,25 @@ class ViewsTests(TestCase):
 
     def test_follow(self):
         follower = User.objects.create(username='follower')
-        Follow.objects.create(user=follower, author=self.user)
+        author = User.objects.create(username='author')
+        authorized_client = Client()
+        authorized_client.force_login(follower)
+        authorized_client.post(reverse(
+            'posts:profile_follow', kwargs={'username': author}))
         following = (
             Follow.objects.filter(
-                user=follower).filter(author=self.user).exists()
+                user=follower).filter(author=author).exists()
         )
         self.assertTrue(following)
 
     def test_unfollow(self):
         follower = User.objects.create(username='follower')
-        Follow.objects.create(user=follower, author=self.user)
-        Follow.objects.filter(user=follower, author=self.user).delete()
+        author = User.objects.create(username='author')
+        authorized_client = Client()
+        authorized_client.force_login(follower)
+        Follow.objects.create(user=follower, author=author)
+        authorized_client.post(reverse(
+            'posts:profile_unfollow', kwargs={'username': author}))
         following = (
             Follow.objects.filter(
                 user=follower).filter(author=self.user).exists()
